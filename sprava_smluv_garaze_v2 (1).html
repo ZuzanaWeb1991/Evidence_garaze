@@ -1,0 +1,1042 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Správa smluv – Garáže Kbely</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=DM+Mono:wght@400;500&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F4F3EF;--sur:#fff;--sur2:#EEEDE8;--sur3:#E6E5DF;
+  --bor:#DDDCD6;--bor2:#C8C7C0;
+  --tx:#181816;--tx2:#6A6965;--tx3:#9A9994;
+  --acc:#2B4A3E;--accl:#E6EFEC;
+  --blue:#1C3A5E;--bluel:#E4EDF6;
+  --amber:#7B4A09;--ambl:#FBF0DF;
+  --red:#7A1D1D;--redl:#FAE7E7;
+  --green:#1B5A31;--grnl:#E6F4EC;
+  --purp:#4A1D7A;--purpl:#EDE7FA;
+  --r:8px;--rl:12px;--rxl:16px;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);font-size:14px;line-height:1.5;min-height:100vh}
+.shell{display:grid;grid-template-columns:210px 1fr;min-height:100vh}
+/* sidebar */
+.sb{background:var(--acc);display:flex;flex-direction:column}
+.sb-logo{padding:24px 18px 20px;border-bottom:1px solid rgba(255,255,255,.1)}
+.sb-logo h1{font-size:14px;font-weight:600;color:#fff;letter-spacing:.02em}
+.sb-logo p{font-size:10px;color:rgba(255,255,255,.4);margin-top:3px;font-family:'DM Mono',monospace}
+.sb-nav{padding:12px 8px;flex:1}
+.nb{display:flex;align-items:center;gap:8px;padding:8px 11px;border-radius:var(--r);cursor:pointer;font-size:13px;font-weight:500;color:rgba(255,255,255,.6);margin-bottom:2px;border:none;background:none;width:100%;text-align:left;transition:all .15s}
+.nb:hover{background:rgba(255,255,255,.08);color:#fff}
+.nb.on{background:rgba(255,255,255,.15);color:#fff}
+.nb svg{width:15px;height:15px;flex-shrink:0}
+.sb-ft{padding:14px;border-top:1px solid rgba(255,255,255,.1)}
+.sb-ft p{font-size:10px;color:rgba(255,255,255,.28);line-height:1.7}
+/* main */
+.main{display:flex;flex-direction:column;overflow:hidden}
+.tb{background:var(--sur);border-bottom:1px solid var(--bor);padding:14px 24px}
+.tb h2{font-size:16px;font-weight:600}
+.tb p{font-size:12px;color:var(--tx2);margin-top:1px}
+.cnt{padding:22px 24px;flex:1;overflow-y:auto}
+/* sections */
+.sec{display:none}.sec.on{display:block}
+/* stats */
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:20px}
+.st{background:var(--sur);border:1px solid var(--bor);border-radius:var(--rl);padding:14px 16px}
+.st .n{font-size:24px;font-weight:600;font-family:'DM Mono',monospace;line-height:1}
+.st .l{font-size:10px;text-transform:uppercase;letter-spacing:.05em;font-weight:500;color:var(--tx2);margin-top:4px}
+.st.cw .n{color:var(--amber)}.st.cs .n{color:var(--green)}.st.cr .n{color:var(--red)}.st.ca .n{color:var(--purp)}
+/* card */
+.card{background:var(--sur);border:1px solid var(--bor);border-radius:var(--rl);padding:18px;margin-bottom:14px}
+.ct{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--tx3);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--bor)}
+/* form */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.g4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px}
+.fg{display:flex;flex-direction:column;gap:4px}
+.fg.full{grid-column:1/-1}
+.fg label{font-size:10px;font-weight:600;color:var(--tx2);text-transform:uppercase;letter-spacing:.05em}
+.fg input,.fg select,.fg textarea{padding:7px 9px;border:1px solid var(--bor2);border-radius:var(--r);font-size:13px;font-family:'DM Sans',sans-serif;background:var(--sur);color:var(--tx);transition:border-color .15s;width:100%}
+.fg input:focus,.fg select:focus{outline:none;border-color:var(--acc)}
+.fg input[readonly]{background:var(--sur2);color:var(--tx2)}
+.fg .hint{font-size:10px;color:var(--tx3)}
+/* radio pills */
+.rpills{display:flex;gap:7px;flex-wrap:wrap}
+.rpl{display:flex;align-items:center;gap:6px;padding:6px 12px;border:1px solid var(--bor2);border-radius:20px;cursor:pointer;font-size:12px;font-weight:500;transition:all .15s;user-select:none}
+.rpl input{display:none}
+.rpl.on{background:var(--acc);border-color:var(--acc);color:#fff}
+/* checkboxes inline */
+.chk-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.chk-item{display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer;padding:5px 10px;border:1px solid var(--bor2);border-radius:20px;user-select:none;transition:all .15s}
+.chk-item input{width:13px;height:13px;accent-color:var(--red);cursor:pointer}
+.chk-item.alert-item{color:var(--red)}
+.chk-item.alert-item.checked{background:var(--redl);border-color:var(--red)}
+/* btn */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 13px;border-radius:var(--r);font-size:12px;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer;border:1px solid var(--bor2);background:var(--sur);color:var(--tx);transition:all .15s}
+.btn:hover{background:var(--sur2)}
+.btn-p{background:var(--acc);border-color:var(--acc);color:#fff}
+.btn-p:hover{opacity:.87}
+.btn-s{padding:4px 9px;font-size:11px}
+.btn svg{width:14px;height:14px}
+.acts{display:flex;gap:7px;margin-top:14px;flex-wrap:wrap}
+/* badge */
+.bdg{display:inline-block;font-size:10px;font-weight:600;padding:2px 7px;border-radius:20px;letter-spacing:.02em;white-space:nowrap}
+.bw{background:var(--ambl);color:var(--amber)}
+.bs{background:var(--grnl);color:var(--green)}
+.br{background:var(--redl);color:var(--red)}
+.ba{background:var(--purpl);color:var(--purp)}
+.bb{background:var(--bluel);color:var(--blue)}
+/* alert badges */
+.abadge{font-size:10px;font-weight:600;padding:1px 6px;border-radius:12px;background:var(--redl);color:var(--red);margin-left:3px}
+/* table */
+.tw{border-radius:var(--rl);border:1px solid var(--bor);overflow:hidden;overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12px;background:var(--sur)}
+th{text-align:left;padding:8px 11px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--tx3);background:var(--sur2);border-bottom:1px solid var(--bor);white-space:nowrap;cursor:pointer;user-select:none}
+th:hover{background:var(--sur3)}
+th .sort-icon{margin-left:4px;opacity:.4;font-size:9px}
+th.sort-asc .sort-icon::after{content:'▲'}
+th.sort-desc .sort-icon::after{content:'▼'}
+th:not(.sort-asc):not(.sort-desc) .sort-icon::after{content:'⇅'}
+td{padding:8px 11px;border-bottom:1px solid var(--bor);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:#FAFAF7}
+.mono{font-family:'DM Mono',monospace}
+/* filter bar */
+.fb{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center}
+.fb input,.fb select{padding:6px 9px;border:1px solid var(--bor2);border-radius:var(--r);font-size:12px;font-family:'DM Sans',sans-serif;background:var(--sur);color:var(--tx)}
+.fb input{min-width:190px}
+/* preview */
+.prev{background:var(--sur2);border:1px solid var(--bor);border-radius:var(--r);padding:14px;font-size:11px;font-family:'DM Mono',monospace;line-height:1.9;white-space:pre-wrap;max-height:260px;overflow-y:auto}
+/* empty */
+.empty{text-align:center;padding:40px 20px;color:var(--tx3);font-size:13px}
+/* notif */
+.notif{position:fixed;bottom:18px;right:18px;background:var(--acc);color:#fff;padding:10px 15px;border-radius:var(--rl);font-size:12px;font-weight:500;box-shadow:0 4px 14px rgba(0,0,0,.15);z-index:999;opacity:0;transform:translateY(6px);transition:all .2s;pointer-events:none}
+.notif.on{opacity:1;transform:translateY(0)}
+tfoot td{font-weight:600;background:var(--sur2)}
+/* warn indicator */
+.warn{display:inline-flex;align-items:center;gap:3px;font-size:10px;color:var(--red);font-weight:600}
+/* modal */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:200;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s}
+.modal-bg.on{opacity:1;pointer-events:all}
+.modal{background:var(--sur);border-radius:var(--rxl);padding:0;width:680px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2);transform:translateY(8px);transition:transform .2s}
+.modal-bg.on .modal{transform:translateY(0)}
+.modal-hdr{display:flex;align-items:center;justify-content:space-between;padding:18px 20px 14px;border-bottom:1px solid var(--bor);position:sticky;top:0;background:var(--sur);z-index:1}
+.modal-hdr h3{font-size:15px;font-weight:600}
+.modal-close{background:none;border:none;cursor:pointer;padding:4px;color:var(--tx2);border-radius:var(--r)}
+.modal-close:hover{background:var(--sur2)}
+.modal-body{padding:18px 20px}
+.modal-foot{padding:12px 20px 18px;border-top:1px solid var(--bor);display:flex;gap:8px;justify-content:flex-end}
+/* parkoviste badge */
+.pbdg{display:inline-block;background:var(--sur2);border:1px solid var(--bor);border-radius:var(--r);padding:2px 7px;font-family:'DM Mono',monospace;font-size:11px;font-weight:500}
+.pbdg.pm{background:var(--bluel);border-color:#b8d0e8;color:var(--blue)}
+/* section divider */
+.sdiv{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--tx3);margin:16px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--bor)}
+/* toggle group */
+.tgl-grp{display:flex;background:var(--sur2);border-radius:var(--r);padding:3px;gap:3px;width:fit-content}
+.tgl{padding:5px 12px;border-radius:6px;font-size:11px;font-weight:500;cursor:pointer;border:none;background:none;color:var(--tx2);transition:all .15s}
+.tgl.on{background:var(--sur);color:var(--tx);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sb">
+    <div class="sb-logo">
+      <h1>Správa smluv</h1>
+      <p>Garáže Kbely · UVS</p>
+    </div>
+    <nav class="sb-nav">
+      <button class="nb on" id="nb-nova" onclick="sw('nova')">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+        Nová smlouva
+      </button>
+      <button class="nb" id="nb-ev" onclick="sw('ev')">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+        Evidence
+      </button>
+      <button class="nb" id="nb-kal" onclick="sw('kal')">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Platební kalendář
+      </button>
+    </nav>
+    <div class="sb-ft">
+      <p>CORPORATEPRO s.r.o.</p>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="tb"><h2 id="tb-h">Nová smlouva</h2><p id="tb-p">Vyplňte údaje podnájemce a vygenerujte smlouvu</p></div>
+    <div class="cnt">
+
+      <!-- NOVÁ SMLOUVA -->
+      <div id="sec-nova" class="sec on">
+        <div class="card">
+          <div class="ct">Typ podnájemce</div>
+          <div class="rpills">
+            <label class="rpl on" id="rp-fo" onclick="setTyp('FO')"><input type="radio" name="typ" value="FO" checked> Fyzická osoba (FO)</label>
+            <label class="rpl" id="rp-po" onclick="setTyp('PO')"><input type="radio" name="typ" value="PO"> Právnická osoba / OSVČ (PO)</label>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="ct">Identifikace</div>
+          <div class="g2">
+            <div class="fg" id="g-sp" style="display:none"><label>Společnost / obchodní firma</label><input type="text" id="spolecnost" placeholder="ABC s.r.o."></div>
+            <div class="fg"><label>Příjmení</label><input type="text" id="prijmeni" placeholder="Novák"></div>
+            <div class="fg"><label>Jméno</label><input type="text" id="jmeno" placeholder="Jan"></div>
+            <div class="fg" id="g-dok"><label>Typ dokladu</label><select id="typDok"><option>OP</option><option>Pas</option><option>RČ</option><option>IČO</option><option>PkP</option><option>ŘP</option><option>průkaz</option></select></div>
+            <div class="fg"><label id="l-dok">Číslo dokladu</label><input type="text" id="cisloDok" placeholder="123456789"></div>
+            <div class="fg"><label>IČ</label><input type="text" id="ico" placeholder="12345678"></div>
+            <div class="fg" id="g-dic" style="display:none"><label>DIČ</label><input type="text" id="dic" placeholder="CZ12345678"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="ct">Kontakt a adresa</div>
+          <div class="g2">
+            <div class="fg full"><label>Adresa</label><input type="text" id="adresa" placeholder="Ulice 1, 100 00 Praha 1"></div>
+            <div class="fg"><label>E-mail</label><input type="email" id="email" placeholder="jan.novak@email.cz"></div>
+            <div class="fg"><label>Mobil</label><input type="tel" id="mobil" placeholder="731 000 000"></div>
+          </div>
+          <div class="sdiv" style="margin-top:12px">Upozornění</div>
+          <div class="chk-row" id="alert-nova">
+            <label class="chk-item alert-item"><input type="checkbox" id="chk-mail"> Chybí e-mail</label>
+            <label class="chk-item alert-item"><input type="checkbox" id="chk-tel"> Chybí telefon</label>
+            <label class="chk-item alert-item"><input type="checkbox" id="chk-smlouva"> Chybí smlouva</label>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="ct">Podmínky smlouvy</div>
+          <div class="g3">
+            <div class="fg">
+              <label>Číslo garáže / parkovacího místa</label>
+              <select id="parkSelect" onchange="parkSelectChange()">
+                <option value="">— vyberte —</option>
+                <optgroup label="Garáže (1–110)">
+                </optgroup>
+                <optgroup label="Parkovací místa (PM1–PM9)">
+                </optgroup>
+              </select>
+            </div>
+            <div class="fg"><label>Variabilní symbol</label><input type="text" id="vs" placeholder="automat z čísla" readonly style="background:var(--sur2);color:var(--tx2)"></div>
+            <div class="fg"></div>
+            <div class="fg"><label>Podnájem od</label><input type="date" id="datOd" onchange="kalChange()"></div>
+            <div class="fg"><label>Podnájem do <span style="font-weight:400;text-transform:none;letter-spacing:0">(prázdné = neurčito)</span></label><input type="date" id="datDo"></div>
+            <div class="fg"></div>
+            <div class="fg"><label>Cena / měsíc bez DPH (Kč)</label><input type="number" id="cenaBez" placeholder="2479" oninput="pocDPH('bez')"></div>
+            <div class="fg"><label>Cena / měsíc s DPH 21 % (Kč)</label><input type="number" id="cenaS" placeholder="3000" oninput="pocDPH('s')"></div>
+            <div class="fg"><label>Kauce (= 2× s DPH)</label><input type="number" id="kauce" readonly></div>
+          </div>
+          <div class="acts">
+            <button class="btn btn-p" onclick="generuj()">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              Zobrazit náhled
+            </button>
+            <button class="btn" onclick="ulozit()">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+              Uložit do evidence
+            </button>
+          </div>
+        </div>
+
+        <div id="prev-wrap" style="display:none">
+          <div class="card">
+            <div class="ct">Náhled záhlaví smlouvy</div>
+            <div class="prev" id="prev-txt"></div>
+            <div class="acts">
+              <button class="btn btn-p" onclick="dlSmlouva()">
+                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Stáhnout smlouvu (.doc)
+              </button>
+              <button class="btn" onclick="doKal()">
+                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                Vytvořit platební kalendář
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- EVIDENCE -->
+      <div id="sec-ev" class="sec">
+        <div class="stats" id="stats-row">
+          <div class="st"><div class="n" id="st-cel">0</div><div class="l">Celkem</div></div>
+          <div class="st cw"><div class="n" id="st-cek">0</div><div class="l">Čeká na vrácení</div></div>
+          <div class="st cs"><div class="n" id="st-pod">0</div><div class="l">Podepsáno</div></div>
+          <div class="st cr"><div class="n" id="st-upo">0</div><div class="l">Upomínka</div></div>
+          <div class="st ca"><div class="n" id="st-uct">0</div><div class="l">Účetní</div></div>
+        </div>
+
+        <div class="fb">
+          <input type="text" id="srch" placeholder="Hledat jméno / garáž / firma…" oninput="renderEv()">
+          <select id="fltr-stav" onchange="renderEv()">
+            <option value="">Všechny stavy</option>
+            <option value="ceka">Čeká na vrácení</option>
+            <option value="podepsane">Podepsáno</option>
+            <option value="upominka">Upomínka</option>
+            <option value="ucetni">Odesláno účetnímu</option>
+          </select>
+          <select id="fltr-typ" onchange="renderEv()">
+            <option value="">Garáže i PM</option>
+            <option value="garaz">Jen garáže (1–110)</option>
+            <option value="pm">Jen PM (PM1–PM9)</option>
+          </select>
+          <select id="fltr-warn" onchange="renderEv()">
+            <option value="">Vše</option>
+            <option value="mail">Chybí mail</option>
+            <option value="tel">Chybí telefon</option>
+            <option value="smlouva">Chybí smlouva</option>
+          </select>
+          <div class="tgl-grp">
+            <button class="tgl on" id="tgl-gar" onclick="setSort('parkoviste')">Garáž ▲▼</button>
+            <button class="tgl" id="tgl-nm" onclick="setSort('jmeno')">Jméno ▲▼</button>
+          </div>
+          <button class="btn btn-s" onclick="expCSV()">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width:12px;height:12px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Export CSV
+          </button>
+        </div>
+
+        <div class="tw">
+          <table>
+            <thead><tr>
+              <th onclick="setSort('parkoviste')" id="th-par">Garáž / PM <span class="sort-icon"></span></th>
+              <th onclick="setSort('jmeno')" id="th-nm">Podnájemce <span class="sort-icon"></span></th>
+              <th>E-mail</th>
+              <th onclick="setSort('datOd')" id="th-od">Od <span class="sort-icon"></span></th>
+              <th onclick="setSort('cenaS')" id="th-kc">Kč/měs. <span class="sort-icon"></span></th>
+              <th>Stav</th>
+              <th>Upozornění</th>
+              <th>Akce</th>
+            </tr></thead>
+            <tbody id="ev-tb"></tbody>
+          </table>
+          <div id="ev-empty" class="empty">Zatím žádné záznamy. Přidejte první smlouvu v záložce „Nová smlouva".</div>
+        </div>
+      </div>
+
+      <!-- PLATEBNÍ KALENDÁŘ -->
+      <div id="sec-kal" class="sec">
+        <div class="card">
+          <div class="ct">Nastavení kalendáře</div>
+          <div class="g3">
+            <div class="fg"><label>Podnájemce</label>
+              <select id="kal-sel" onchange="nactiPod()"><option value="">— vyberte —</option></select>
+            </div>
+            <div class="fg"><label>Rok</label>
+              <select id="kal-rok" onchange="renderKal()"><option>2024</option><option>2025</option><option selected>2026</option><option>2027</option></select>
+            </div>
+            <div class="fg"></div>
+            <div class="fg"><label>Cena / měsíc bez DPH (Kč)</label><input type="number" id="kal-bez" oninput="kalPocDPH('bez')"></div>
+            <div class="fg"><label>Cena / měsíc s DPH (Kč)</label><input type="number" id="kal-s" oninput="kalPocDPH('s')"></div>
+            <div class="fg" style="justify-content:flex-end;padding-top:18px">
+              <button class="btn" onclick="zaokrouhlit()" title="Zaokrouhlí cenu bez DPH na celé koruny a přepočítá s DPH">
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/><path d="M8 12h8M12 8v8"/></svg>
+                Zaokrouhlit bez DPH
+              </button>
+            </div>
+          </div>
+          <!-- první splátka info -->
+          <div id="prvni-info" style="display:none;margin-top:12px;padding:10px 12px;background:var(--ambl);border-radius:var(--r);font-size:12px;color:var(--amber)">
+            <strong>Poměrná první splátka:</strong> <span id="prvni-txt"></span>
+          </div>
+          <div class="acts">
+            <button class="btn btn-p" onclick="dlKal()">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width:14px;height:14px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Stáhnout platební kalendář (.doc)
+            </button>
+          </div>
+        </div>
+
+        <div id="kal-wrap" style="display:none">
+          <div class="tw">
+            <table>
+              <thead><tr><th>Měsíc</th><th>Splatnost</th><th>DUZP</th><th>Nájem bez DPH</th><th>DPH 21 %</th><th>K platbě celkem</th><th>Poznámka</th></tr></thead>
+              <tbody id="kal-tb"></tbody>
+              <tfoot id="kal-ft"></tfoot>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+<div class="notif" id="notif"></div>
+
+<!-- MODAL – Upravit záznam -->
+<div class="modal-bg" id="modal-bg" onclick="modalClickBg(event)">
+  <div class="modal">
+    <div class="modal-hdr">
+      <h3>Upravit záznam – <span id="modal-title"></span></h3>
+      <button class="modal-close" onclick="closeModal()">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <!-- Typ -->
+      <div class="sdiv" style="margin-top:0">Typ podnájemce</div>
+      <div class="rpills">
+        <label class="rpl" id="mrp-fo" onclick="mSetTyp('FO')"><input type="radio" name="mtyp" value="FO"> Fyzická osoba (FO)</label>
+        <label class="rpl" id="mrp-po" onclick="mSetTyp('PO')"><input type="radio" name="mtyp" value="PO"> Právnická osoba / OSVČ (PO)</label>
+      </div>
+      <!-- Identifikace -->
+      <div class="sdiv">Identifikace</div>
+      <div class="g2">
+        <div class="fg" id="mg-sp"><label>Společnost / obchodní firma</label><input type="text" id="m-spolecnost"></div>
+        <div class="fg"><label>Příjmení</label><input type="text" id="m-prijmeni"></div>
+        <div class="fg"><label>Jméno</label><input type="text" id="m-jmeno"></div>
+        <div class="fg" id="mg-dok"><label>Typ dokladu</label><select id="m-typDok"><option>OP</option><option>Pas</option><option>RČ</option><option>IČO</option><option>PkP</option><option>ŘP</option><option>průkaz</option></select></div>
+        <div class="fg"><label>Číslo dokladu / IČ</label><input type="text" id="m-cisloDok"></div>
+        <div class="fg"><label>IČ</label><input type="text" id="m-ico"></div>
+        <div class="fg" id="mg-dic"><label>DIČ</label><input type="text" id="m-dic"></div>
+      </div>
+      <!-- Kontakt -->
+      <div class="sdiv">Kontakt a adresa</div>
+      <div class="g2">
+        <div class="fg full"><label>Adresa</label><input type="text" id="m-adresa"></div>
+        <div class="fg"><label>E-mail</label><input type="email" id="m-email"></div>
+        <div class="fg"><label>Mobil</label><input type="tel" id="m-mobil"></div>
+      </div>
+      <!-- Smlouva -->
+      <div class="sdiv">Podmínky smlouvy</div>
+      <div class="g3">
+        <div class="fg"><label>Garáž / PM</label><select id="m-park" onchange="mParkChange()"></select></div>
+        <div class="fg"><label>Variabilní symbol</label><input type="text" id="m-vs"></div>
+        <div class="fg"></div>
+        <div class="fg"><label>Podnájem od</label><input type="date" id="m-datOd"></div>
+        <div class="fg"><label>Podnájem do</label><input type="date" id="m-datDo"><span class="hint">Prázdné = neurčito</span></div>
+        <div class="fg"></div>
+        <div class="fg"><label>Cena bez DPH (Kč)</label><input type="number" id="m-cenaBez" oninput="mPocDPH('bez')"></div>
+        <div class="fg"><label>Cena s DPH (Kč)</label><input type="number" id="m-cenaS" oninput="mPocDPH('s')"></div>
+        <div class="fg"><label>Kauce</label><input type="number" id="m-kauce" readonly></div>
+      </div>
+      <!-- Stav -->
+      <div class="sdiv">Stav a upozornění</div>
+      <div class="g2">
+        <div class="fg"><label>Stav</label>
+          <select id="m-stav">
+            <option value="ceka">Čeká na vrácení</option>
+            <option value="podepsane">Podepsáno</option>
+            <option value="upominka">Upomínka poslána</option>
+            <option value="ucetni">Odesláno účetnímu</option>
+          </select>
+        </div>
+        <div class="fg"><label>Poznámka</label><input type="text" id="m-poznamka"></div>
+      </div>
+      <div class="chk-row" style="margin-top:10px" id="m-alerts">
+        <label class="chk-item alert-item"><input type="checkbox" id="m-chkMail"> Chybí e-mail</label>
+        <label class="chk-item alert-item"><input type="checkbox" id="m-chkTel"> Chybí telefon</label>
+        <label class="chk-item alert-item"><input type="checkbox" id="m-chkSmlouva"> Chybí smlouva</label>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="closeModal()">Zrušit</button>
+      <button class="btn btn-p" onclick="ulozitModal()">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        Uložit změny
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ---- konstanty ----
+const MNS=['Leden','Únor','Březen','Duben','Květen','Červen','Červenec','Srpen','Září','Říjen','Listopad','Prosinec'];
+const SL={ceka:'Čeká na vrácení',podepsane:'Podepsáno',upominka:'Upomínka poslána',ucetni:'Odesláno účetnímu'};
+const SC={ceka:'bw',podepsane:'bs',upominka:'br',ucetni:'ba'};
+const TBINFO={nova:['Nová smlouva','Vyplňte údaje podnájemce a vygenerujte smlouvu'],ev:['Evidence smluv','Přehled všech podnájemců a stavů – řazení podle garáže nebo jména'],kal:['Platební kalendář','Roční splátkový kalendář s poměrnou první splátkou']};
+
+// ---- stav ----
+let db = JSON.parse(localStorage.getItem('smlouvy_kbely_v2')||'[]');
+let cur = null;
+let typSmlouvy = 'FO';
+let sortKey = 'parkoviste';
+let sortDir = 1;
+
+function save(){ localStorage.setItem('smlouvy_kbely_v2', JSON.stringify(db)); }
+function notif(m){const n=document.getElementById('notif');n.textContent=m;n.classList.add('on');setTimeout(()=>n.classList.remove('on'),2500);}
+function fD(d){if(!d)return'';const p=d.split('-');return p[2]+'. '+p[1]+'. '+p[0];}
+function fK(n){return Number(n||0).toLocaleString('cs-CZ')+' Kč';}
+
+// ---- init parkoviste select ----
+function initParkSelect(){
+  const s=document.getElementById('parkSelect');
+  const og1=s.querySelectorAll('optgroup')[0];
+  const og2=s.querySelectorAll('optgroup')[1];
+  for(let i=1;i<=110;i++){const o=document.createElement('option');o.value=String(i);o.textContent='Garáž '+i;og1.appendChild(o);}
+  for(let i=1;i<=9;i++){const o=document.createElement('option');o.value='PM'+i;o.textContent='PM'+i;og2.appendChild(o);}
+}
+
+function parkSelectChange(){
+  const v=document.getElementById('parkSelect').value;
+  if(!v){document.getElementById('vs').value='';return;}
+  // VS = číslo parkoviště (pro PM: číselná část)
+  const num = v.startsWith('PM') ? v.replace('PM','') : v;
+  document.getElementById('vs').value = num;
+}
+
+// ---- tab switch ----
+function sw(t){
+  ['nova','ev','kal'].forEach(id=>{
+    document.getElementById('sec-'+id).classList.toggle('on',id===t);
+    document.getElementById('nb-'+id).classList.toggle('on',id===t);
+  });
+  document.getElementById('tb-h').textContent=TBINFO[t][0];
+  document.getElementById('tb-p').textContent=TBINFO[t][1];
+  if(t==='ev'){renderEv();updStats();}
+  if(t==='kal'){renderKalSel();}
+}
+
+// ---- typ FO/PO ----
+function setTyp(t){
+  typSmlouvy=t;
+  document.getElementById('rp-fo').classList.toggle('on',t==='FO');
+  document.getElementById('rp-po').classList.toggle('on',t==='PO');
+  document.getElementById('g-sp').style.display=t==='PO'?'flex':'none';
+  document.getElementById('g-dic').style.display=t==='PO'?'flex':'none';
+  document.getElementById('g-dok').style.display=t==='FO'?'flex':'none';
+}
+
+// ---- DPH ----
+function pocDPH(smer){
+  if(smer==='bez'){
+    const v=parseFloat(document.getElementById('cenaBez').value)||0;
+    const s=Math.round(v*1.21);
+    document.getElementById('cenaS').value=s||'';
+    document.getElementById('kauce').value=s?s*2:'';
+  } else {
+    const s=parseFloat(document.getElementById('cenaS').value)||0;
+    const v=Math.round(s/1.21*100)/100;
+    document.getElementById('cenaBez').value=v||'';
+    document.getElementById('kauce').value=s?s*2:'';
+  }
+}
+
+function kalChange(){renderKal();}
+
+// ---- getData ----
+function getD(){
+  return{
+    typ:typSmlouvy,
+    spolecnost:document.getElementById('spolecnost').value.trim(),
+    prijmeni:document.getElementById('prijmeni').value.trim(),
+    jmeno:document.getElementById('jmeno').value.trim(),
+    typDok:document.getElementById('typDok').value,
+    cisloDok:document.getElementById('cisloDok').value.trim(),
+    ico:document.getElementById('ico').value.trim(),
+    dic:document.getElementById('dic').value.trim(),
+    adresa:document.getElementById('adresa').value.trim(),
+    email:document.getElementById('email').value.trim(),
+    mobil:document.getElementById('mobil').value.trim(),
+    parkoviste:document.getElementById('parkSelect').value,
+    vs:document.getElementById('vs').value.trim(),
+    datOd:document.getElementById('datOd').value,
+    datDo:document.getElementById('datDo').value,
+    cenaBez:parseFloat(document.getElementById('cenaBez').value)||0,
+    cenaS:parseFloat(document.getElementById('cenaS').value)||0,
+    chybMail:document.getElementById('chk-mail').checked,
+    chybTel:document.getElementById('chk-tel').checked,
+    chybSmlouva:document.getElementById('chk-smlouva').checked,
+    stav:'ceka', id:Date.now(), poznamka:''
+  };
+}
+
+function nm(d){return d.typ==='PO'?(d.spolecnost||'[firma]'):((d.jmeno+' '+d.prijmeni).trim()||'[jméno]');}
+
+// ---- generuj náhled ----
+function generuj(){
+  const d=getD(); cur=d;
+  const kauce=Math.round(d.cenaS*2);
+  const doba=d.datDo?'na dobu určitou do '+fD(d.datDo):'na dobu neurčitou';
+  document.getElementById('prev-txt').textContent=
+`SMLOUVA O PODNÁJMU PARKOVACÍHO MÍSTA
+══════════════════════════════════════
+Nájemce:    CORPORATEPRO s.r.o.
+
+Podnájemce: ${nm(d)}
+${d.typ==='FO'?'            Doklad: '+d.typDok+' č. '+d.cisloDok:'            IČ: '+d.ico+(d.dic?' · DIČ: '+d.dic:'')}
+            Adresa: ${d.adresa||'[adresa]'}
+            E-mail: ${d.email||'[chybí]'}
+            Tel.: +420 ${d.mobil||'[chybí]'}
+
+Parkovací místo č.: ${d.parkoviste||'[?]'}
+Účinnost:   ode dne ${fD(d.datOd)||'[datum]'}, ${doba}
+
+Podnájemné: ${fK(d.cenaBez)} bez DPH / ${fK(d.cenaS)} s DPH / měsíc
+Var. symbol:${d.vs||'[VS]'}
+Kauce:      ${fK(kauce)} (= 2× měs. nájemné s DPH)`;
+  document.getElementById('prev-wrap').style.display='block';
+}
+
+// ---- uložit ----
+function ulozit(){
+  const d=getD();
+  if(!d.prijmeni&&!d.spolecnost){alert('Zadejte alespoň příjmení nebo název firmy.');return;}
+  if(!d.parkoviste){alert('Vyberte číslo garáže / parkovacího místa.');return;}
+  db.push(d); save(); updStats(); notif('Uloženo do evidence ✓');
+}
+
+function doKal(){
+  if(!cur)return;
+  // uložíme pokud není uloženo
+  if(!db.find(x=>x.id===cur.id)){db.push(cur);save();updStats();}
+  sw('kal');
+  setTimeout(()=>{renderKalSel();const s=document.getElementById('kal-sel');for(let i=0;i<s.options.length;i++){if(parseInt(s.options[i].value)===cur.id){s.selectedIndex=i;nactiPod();break;}}},80);
+}
+
+// ---- download smlouva ----
+function dlSmlouva(id){
+  const d = id ? db.find(x=>x.id===id) : cur;
+  if(!d){alert('Nejprve zobrazte náhled.');return;}
+  const kauce=Math.round(d.cenaS*2);
+  const doba=d.datDo?`na dobu určitou do dne ${fD(d.datDo)}`:'na dobu neurčitou';
+  const ib=d.typ==='PO'
+    ?`jméno a příjmení / obchodní firma: ${nm(d)}<br>místo podnikání/sídlo: ${d.adresa}<br>IČ: ${d.ico}<br>DIČ: ${d.dic||'—'}<br>e-mail: ${d.email}<br>tel.: +420 ${d.mobil}`
+    :`jméno a příjmení: ${nm(d)}<br>trvalé bydliště: ${d.adresa}<br>${d.typDok} č.: ${d.cisloDok}<br>e-mail: ${d.email}<br>tel.: +420 ${d.mobil}`;
+  const html=`<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word'><head><meta charset='utf-8'><title>Smlouva</title><style>body{font-family:"Times New Roman",serif;font-size:11pt;margin:2.5cm 2cm}h2{text-align:center;font-size:13pt;margin:16pt 0 10pt}p{margin:4pt 0;line-height:1.6}.sig{margin-top:60pt;display:flex;justify-content:space-between}hr{border:none;border-top:1px solid #ccc;margin:12pt 0}</style></head><body>
+<p>Níže uvedeného dne, měsíce a roku uzavřeli/y</p>
+<p><b>CORPORATEPRO s.r.o.</b><br><b>na straně jedné (dále jen „nájemce")</b></p>
+<p>a</p><p>${ib}<br><b>na straně druhé (dále jen „podnájemce")</b></p>
+<hr>
+<h2>Smlouvu o podnájmu parkovacího místa</h2>
+<p><b>II. Předmět smlouvy</b><br>Nájemce podnajímá podnájemci parkovací místo č. <b>${d.parkoviste}</b> na Parkovišti Hůlkova, Praha 19 – Kbely.</p>
+<p><b>III. Doba podnájmu</b><br>Smlouva se uzavírá s účinností ode dne <b>${fD(d.datOd)||'___'}</b>, ${doba}.</p>
+<p><b>IV. Kauce</b><br>Kauce: <b>${fK(kauce)}</b> (dvojnásobek měsíčního Podnájemného s DPH).</p>
+<p><b>V. Podnájemné</b><br>Podnájemné: <b>${fK(d.cenaBez)}</b> bez DPH / <b>${fK(d.cenaS)}</b> s DPH 21 % měsíčně.<br>Variabilní symbol: <b>${d.vs||'___'}</b></p>
+<div class='sig'><div>V Praze dne ${fD(d.datOd)||'_________________'}<br><br>............................................<br>CORPORATEPRO s.r.o.</div><div><br><br>............................................<br>Podnájemce<br>${nm(d)}</div></div>
+</body></html>`;
+  dl(html,'Smlouva_'+nm(d).replace(/\s/g,'_')+'_misto'+d.parkoviste+'.doc','application/msword');
+  notif('Smlouva stažena ✓');
+}
+
+function dl(content,fname,mime){
+  const b=new Blob([content],{type:mime});
+  const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=fname;a.click();
+}
+
+// ---- STATS ----
+function updStats(){
+  document.getElementById('st-cel').textContent=db.length;
+  document.getElementById('st-cek').textContent=db.filter(e=>e.stav==='ceka').length;
+  document.getElementById('st-pod').textContent=db.filter(e=>e.stav==='podepsane').length;
+  document.getElementById('st-upo').textContent=db.filter(e=>e.stav==='upominka').length;
+  document.getElementById('st-uct').textContent=db.filter(e=>e.stav==='ucetni').length;
+}
+
+// ---- SORT ----
+function setSort(k){
+  if(sortKey===k) sortDir*=-1; else {sortKey=k;sortDir=1;}
+  ['par','nm','od','kc'].forEach(id=>{
+    const th=document.getElementById('th-'+id);
+    if(!th)return;
+    th.classList.remove('sort-asc','sort-desc');
+  });
+  const map={parkoviste:'par',jmeno:'nm',datOd:'od',cenaS:'kc'};
+  const tid=map[k];
+  if(tid){
+    const th=document.getElementById('th-'+tid);
+    if(th) th.classList.add(sortDir===1?'sort-asc':'sort-desc');
+  }
+  renderEv();
+}
+
+function parkNum(p){
+  if(!p)return 9999;
+  if(String(p).startsWith('PM'))return 1000+parseInt(String(p).replace('PM',''));
+  return parseInt(p)||9999;
+}
+
+// ---- RENDER EVIDENCE ----
+function renderEv(){
+  const q=(document.getElementById('srch').value||'').toLowerCase();
+  const fs=document.getElementById('fltr-stav').value;
+  const ft=document.getElementById('fltr-typ').value;
+  const fw=document.getElementById('fltr-warn').value;
+
+  let rows=db.filter(e=>{
+    const s=(nm(e)+' '+e.parkoviste+' '+e.email+' '+e.vs).toLowerCase();
+    if(q&&!s.includes(q))return false;
+    if(fs&&e.stav!==fs)return false;
+    if(ft==='garaz'&&String(e.parkoviste).startsWith('PM'))return false;
+    if(ft==='pm'&&!String(e.parkoviste).startsWith('PM'))return false;
+    if(fw==='mail'&&!e.chybMail)return false;
+    if(fw==='tel'&&!e.chybTel)return false;
+    if(fw==='smlouva'&&!e.chybSmlouva)return false;
+    return true;
+  });
+
+  // sort
+  rows.sort((a,b)=>{
+    let av,bv;
+    if(sortKey==='parkoviste'){av=parkNum(a.parkoviste);bv=parkNum(b.parkoviste);}
+    else if(sortKey==='jmeno'){av=nm(a).toLowerCase();bv=nm(b).toLowerCase();}
+    else if(sortKey==='datOd'){av=a.datOd||'';bv=b.datOd||'';}
+    else if(sortKey==='cenaS'){av=a.cenaS||0;bv=b.cenaS||0;}
+    else{av='';bv='';}
+    if(av<bv)return -1*sortDir;
+    if(av>bv)return 1*sortDir;
+    return 0;
+  });
+
+  const tb=document.getElementById('ev-tb');
+  const em=document.getElementById('ev-empty');
+  if(!rows.length){tb.innerHTML='';em.style.display='block';return;}
+  em.style.display='none';
+
+  tb.innerHTML=rows.map(e=>{
+    const isPM=String(e.parkoviste).startsWith('PM');
+    const warns=[];
+    if(e.chybMail)warns.push('<span class="abadge">mail</span>');
+    if(e.chybTel)warns.push('<span class="abadge">tel</span>');
+    if(e.chybSmlouva)warns.push('<span class="abadge">smlouva</span>');
+    return`<tr>
+      <td><span class="pbdg${isPM?' pm':''}">${e.parkoviste||'—'}</span></td>
+      <td><strong>${nm(e)}</strong>${e.spolecnost&&e.typ==='PO'?'<br><span style="font-size:10px;color:var(--tx2)">'+e.jmeno+' '+e.prijmeni+'</span>':''}</td>
+      <td style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><a href="mailto:${e.email}" style="color:var(--blue);text-decoration:none">${e.email||'—'}</a></td>
+      <td>${fD(e.datOd)||'—'}</td>
+      <td class="mono">${fK(e.cenaS)}</td>
+      <td><select style="font-size:11px;padding:3px 6px;border:1px solid var(--bor2);border-radius:var(--r);background:var(--sur);font-family:'DM Sans',sans-serif;color:var(--tx)" onchange="zmenStav(${e.id},this.value)">
+        ${Object.entries(SL).map(([k,v])=>`<option value="${k}"${e.stav===k?' selected':''}>${v}</option>`).join('')}
+      </select></td>
+      <td>${warns.join(' ')||'<span style="color:var(--tx3);font-size:10px">—</span>'}</td>
+      <td style="white-space:nowrap">
+        <button class="btn btn-s" title="Upravit" onclick="openModal(${e.id})" style="color:var(--blue);border-color:var(--blue)">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width:12px;height:12px"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </button>
+        <button class="btn btn-s" title="Stáhnout smlouvu" onclick="dlSmlouva(${e.id})" style="color:var(--green);border-color:var(--green);margin-left:3px">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width:12px;height:12px"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="14" x2="12" y2="10"/><line x1="9" y1="13" x2="15" y2="13"/></svg>
+        </button>
+        <button class="btn btn-s" title="Platební kalendář" onclick="kalProId(${e.id})" style="margin-left:3px">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width:12px;height:12px"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        </button>
+        <button class="btn btn-s" title="Smazat" onclick="smazat(${e.id})" style="color:var(--red);border-color:var(--red);opacity:.7;margin-left:3px">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width:12px;height:12px"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+        </button>
+      </td>
+    </tr>`;
+  }).join('');
+  updStats();
+}
+
+function zmenStav(id,stav){
+  const e=db.find(x=>x.id===id);
+  if(e){e.stav=stav;save();renderEv();}
+}
+
+function smazat(id){
+  if(!confirm('Opravdu smazat tento záznam?'))return;
+  db=db.filter(x=>x.id!==id);save();renderEv();notif('Záznam smazán');
+}
+
+function kalProId(id){
+  sw('kal');
+  setTimeout(()=>{renderKalSel();document.getElementById('kal-sel').value=id;nactiPod();},60);
+}
+
+// ---- EXPORT CSV ----
+function expCSV(){
+  if(!db.length){alert('Žádná data.');return;}
+  const H=['Garáž/PM','Typ','Společnost','Příjmení','Jméno','IČ','DIČ','Adresa','E-mail','Mobil','Cena bez DPH','Cena s DPH','Od','Do','VS','Stav','Chybí mail','Chybí tel','Chybí smlouva'];
+  const R=db.map(e=>[e.parkoviste,e.typ,e.spolecnost,e.prijmeni,e.jmeno,e.ico,e.dic,e.adresa,e.email,e.mobil,e.cenaBez,e.cenaS,e.datOd,e.datDo,e.vs,SL[e.stav]||e.stav,e.chybMail?'ANO':'',e.chybTel?'ANO':'',e.chybSmlouva?'ANO':''].map(v=>`"${(v||'').toString().replace(/"/g,'""')}"`).join(','));
+  dl('\uFEFF'+[H.join(','),...R].join('\n'),'evidence_garaze.csv','text/csv;charset=utf-8');
+  notif('CSV exportováno ✓');
+}
+
+// ---- PLATEBNÍ KALENDÁŘ ----
+function renderKalSel(){
+  const s=document.getElementById('kal-sel');
+  const v=s.value;
+  // seřadit dle parkoviste
+  const sorted=[...db].sort((a,b)=>parkNum(a.parkoviste)-parkNum(b.parkoviste));
+  s.innerHTML='<option value="">— vyberte —</option>'+
+    sorted.map(e=>`<option value="${e.id}">${e.parkoviste} – ${nm(e)}</option>`).join('');
+  if(v)s.value=v;
+}
+
+function nactiPod(){
+  const id=parseInt(document.getElementById('kal-sel').value);
+  const e=db.find(x=>x.id===id);
+  if(!e)return;
+  // nastavit rok z datOd pokud existuje
+  if(e.datOd){
+    const y=e.datOd.split('-')[0];
+    const sel=document.getElementById('kal-rok');
+    for(let i=0;i<sel.options.length;i++){if(sel.options[i].value===y){sel.selectedIndex=i;break;}}
+  }
+  document.getElementById('kal-bez').value=e.cenaBez;
+  document.getElementById('kal-s').value=e.cenaS;
+  renderKal();
+}
+
+function kalPocDPH(smer){
+  if(smer==='bez'){
+    const v=parseFloat(document.getElementById('kal-bez').value)||0;
+    document.getElementById('kal-s').value=Math.round(v*1.21)||'';
+  } else {
+    const s=parseFloat(document.getElementById('kal-s').value)||0;
+    document.getElementById('kal-bez').value=s?Math.round(s/1.21*100)/100:'';
+  }
+  renderKal();
+}
+
+function zaokrouhlit(){
+  const v=parseFloat(document.getElementById('kal-bez').value)||0;
+  if(!v){alert('Nejprve zadejte cenu bez DPH.');return;}
+  const zaokr=Math.round(v);
+  document.getElementById('kal-bez').value=zaokr;
+  document.getElementById('kal-s').value=Math.round(zaokr*1.21);
+  renderKal();
+  notif('Zaokrouhleno: '+zaokr+' Kč bez DPH → '+Math.round(zaokr*1.21)+' Kč s DPH');
+}
+
+// ---- RENDER KALENDÁŘ S POMĚRNOU SPLÁTKOU ----
+function renderKal(){
+  const id=parseInt(document.getElementById('kal-sel').value);
+  const e=db.find(x=>x.id===id);
+  const rok=parseInt(document.getElementById('kal-rok').value);
+  const bez=parseFloat(document.getElementById('kal-bez').value)||0;
+  const s=Math.round(bez*1.21);
+  document.getElementById('kal-s').value=s||'';
+
+  // Zjistit datum začátku: buď z evidence nebo 1.1 roku
+  let startDate = null;
+  if(e && e.datOd){
+    const d=new Date(e.datOd);
+    // pokud datum začátku je v roce kalendáře, použijeme ho
+    if(d.getFullYear()===rok) startDate=d;
+  }
+
+  // Sestavit měsíce: od startDate.month do 12
+  const startMonth = startDate ? startDate.getMonth() : 0; // 0-indexed
+  const startDay = startDate ? startDate.getDate() : 1;
+
+  // Poměrná první splátka
+  let prvniBez=bez, prvniS=s, prvniPozn='';
+  let jePomerna=false;
+  if(startDate && startDay>1){
+    jePomerna=true;
+    const rok2=startDate.getFullYear();
+    const mesic=startDate.getMonth(); // 0-indexed
+    const dniVMesici=new Date(rok2,mesic+1,0).getDate();
+    const zbyvaDni=dniVMesici-startDay+1;
+    prvniBez=Math.round((bez/dniVMesici)*zbyvaDni*100)/100;
+    prvniS=Math.round(prvniBez*1.21);
+    prvniPozn=`poměrná část: ${zbyvaDni} dní z ${dniVMesici}`;
+    // info box
+    document.getElementById('prvni-info').style.display='block';
+    document.getElementById('prvni-txt').textContent=`${fK(prvniS)} s DPH (${zbyvaDni} dní z ${dniVMesici} dní v měsíci ${MNS[mesic]})`;
+  } else {
+    document.getElementById('prvni-info').style.display='none';
+  }
+
+  const dph=s-bez;
+  let sb=0,sd=0,ss=0;
+  const tbody=document.getElementById('kal-tb');
+  let rows='';
+
+  for(let m=startMonth;m<12;m++){
+    let mb=bez, ms=s, md=dph, pozn='';
+    if(m===startMonth && jePomerna){
+      mb=prvniBez; ms=prvniS; md=Math.round(prvniBez*0.21); pozn=prvniPozn;
+    }
+    // Datum splatnosti: vždy 5. daného měsíce (nebo datum začátku pro první)
+    const splatMes=String(m+1).padStart(2,'0');
+    const splatDen=(m===startMonth&&jePomerna)?String(startDay).padStart(2,'0'):'05';
+    const splatnost=`${splatDen}. ${splatMes}. ${rok}`;
+    const duzp=`${splatMes}. ${rok}`;
+    sb+=mb; sd+=md; ss+=ms;
+    rows+=`<tr><td>${MNS[m]}</td><td>${splatnost}</td><td>${duzp}</td><td class="mono">${fK(mb)}</td><td class="mono">${fK(md)}</td><td class="mono"><strong>${fK(ms)}</strong></td><td style="font-size:11px;color:var(--tx2)">${pozn}</td></tr>`;
+  }
+  tbody.innerHTML=rows;
+  document.getElementById('kal-ft').innerHTML=`<tr><td colspan="3"><strong>Celkem</strong></td><td class="mono"><strong>${fK(Math.round(sb*100)/100)}</strong></td><td class="mono"><strong>${fK(Math.round(sd*100)/100)}</strong></td><td class="mono"><strong>${fK(ss)}</strong></td><td></td></tr>`;
+  document.getElementById('kal-wrap').style.display='block';
+}
+
+// ---- DOWNLOAD KALENDÁŘ ----
+function dlKal(){
+  const id=parseInt(document.getElementById('kal-sel').value);
+  const e=db.find(x=>x.id===id);
+  if(!e){alert('Nejprve vyberte podnájemce.');return;}
+  const rok=parseInt(document.getElementById('kal-rok').value);
+  const bez=parseFloat(document.getElementById('kal-bez').value)||0;
+  const s=Math.round(bez*1.21);
+
+  let startDate=null;
+  if(e.datOd){const d=new Date(e.datOd);if(d.getFullYear()===rok)startDate=d;}
+  const startMonth=startDate?startDate.getMonth():0;
+  const startDay=startDate?startDate.getDate():1;
+  let jePomerna=startDate&&startDay>1;
+  let prvniBez=bez,prvniS=s,prvniPozn='';
+  if(jePomerna){
+    const dniVMesici=new Date(rok,startDate.getMonth()+1,0).getDate();
+    const zbyvaDni=dniVMesici-startDay+1;
+    prvniBez=Math.round((bez/dniVMesici)*zbyvaDni*100)/100;
+    prvniS=Math.round(prvniBez*1.21);
+    prvniPozn=`poměrná část: ${zbyvaDni}/${dniVMesici} dní`;
+  }
+  const dph=s-bez;
+  let sb=0,sd=0,ss=0,radky='';
+  for(let m=startMonth;m<12;m++){
+    let mb=bez,ms=s,md=dph,pozn='';
+    if(m===startMonth&&jePomerna){mb=prvniBez;ms=prvniS;md=Math.round(prvniBez*0.21);pozn=prvniPozn;}
+    const splatMes=String(m+1).padStart(2,'0');
+    const splatDen=(m===startMonth&&jePomerna)?String(startDay).padStart(2,'0'):'05';
+    sb+=mb;sd+=md;ss+=ms;
+    radky+=`<tr><td>${MNS[m]}</td><td>${splatDen}.${splatMes}.${rok}</td><td>${splatMes}.${rok}</td><td>${fK(mb)}</td><td>${fK(md)}</td><td>${fK(ms)}</td><td style="font-size:9pt">${pozn}</td></tr>`;
+  }
+  const ident=e.typ==='FO'?`Jméno: ${nm(e)}<br>Adresa: ${e.adresa||'—'}<br>${e.typDok} č.: ${e.cisloDok}`:`${nm(e)}<br>Adresa: ${e.adresa||'—'}<br>IČ: ${e.ico}`;
+  const html=`<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word'><head><meta charset='utf-8'><title>Platební kalendář</title><style>body{font-family:Arial,sans-serif;font-size:10pt;margin:2cm}h2{text-align:center;font-size:12pt;margin-bottom:10pt}table{width:100%;border-collapse:collapse;margin-top:10pt}th,td{border:1px solid #aaa;padding:4pt 5pt;font-size:9.5pt}th{background:#eeeeee;font-weight:bold}tfoot td{background:#eeeeee;font-weight:bold}.sig{margin-top:50pt;display:flex;justify-content:space-between}</style></head><body>
+<h2>Daňový doklad – Splátkový kalendář č. ${e.vs||'?'}</h2>
+<p>uzavřený dle podnájemní smlouvy ze dne <b>${fD(e.datOd)}</b></p>
+<p><b>Pronajímatel:</b> CORPORATEPRO s.r.o.</p>
+<p><b>Podnájemce:</b><br>${ident}<br>Parkovací místo č. <b>${e.parkoviste}</b>, VS: <b>${e.vs}</b></p>
+<table><thead><tr><th>Měsíc</th><th>Splatnost</th><th>DUZP</th><th>Nájem bez DPH</th><th>DPH 21 %</th><th>K platbě celkem</th><th>Poznámka</th></tr></thead>
+<tbody>${radky}</tbody>
+<tfoot><tr><td colspan="3"><b>Celkem</b></td><td><b>${fK(Math.round(sb*100)/100)}</b></td><td><b>${fK(Math.round(sd*100)/100)}</b></td><td><b>${fK(ss)}</b></td><td></td></tr></tfoot></table>
+<div class='sig'><div>V Praze dne ________________________<br><br>............................................<br>CORPORATEPRO s.r.o.</div><div><br><br>............................................<br>Podnájemce<br>${nm(e)}</div></div>
+</body></html>`;
+  dl(html,`Platebni_kalendar_${rok}_${e.parkoviste}_${nm(e).replace(/\s/g,'_')}.doc`,'application/msword');
+  notif('Platební kalendář stažen ✓');
+}
+
+// ---- MODAL – edit ----
+let editId = null;
+
+function initModalParkSelect(){
+  const s=document.getElementById('m-park');
+  s.innerHTML='<option value="">— vyberte —</option>';
+  const og1=document.createElement('optgroup');og1.label='Garáže (1–110)';
+  const og2=document.createElement('optgroup');og2.label='Parkovací místa (PM1–PM9)';
+  for(let i=1;i<=110;i++){const o=document.createElement('option');o.value=String(i);o.textContent='Garáž '+i;og1.appendChild(o);}
+  for(let i=1;i<=9;i++){const o=document.createElement('option');o.value='PM'+i;o.textContent='PM'+i;og2.appendChild(o);}
+  s.appendChild(og1);s.appendChild(og2);
+}
+
+function mSetTyp(t){
+  document.getElementById('mrp-fo').classList.toggle('on',t==='FO');
+  document.getElementById('mrp-po').classList.toggle('on',t==='PO');
+  document.getElementById('mg-sp').style.display=t==='PO'?'flex':'none';
+  document.getElementById('mg-dic').style.display=t==='PO'?'flex':'none';
+  document.getElementById('mg-dok').style.display=t==='FO'?'flex':'none';
+  document.querySelector('input[name="mtyp"][value="'+t+'"]').checked=true;
+}
+
+function mParkChange(){
+  const v=document.getElementById('m-park').value;
+  if(!v)return;
+  const num=v.startsWith('PM')?v.replace('PM',''):v;
+  document.getElementById('m-vs').value=num;
+}
+
+function mPocDPH(smer){
+  if(smer==='bez'){
+    const v=parseFloat(document.getElementById('m-cenaBez').value)||0;
+    const s=Math.round(v*1.21);
+    document.getElementById('m-cenaS').value=s||'';
+    document.getElementById('m-kauce').value=s?s*2:'';
+  } else {
+    const s=parseFloat(document.getElementById('m-cenaS').value)||0;
+    const v=Math.round(s/1.21*100)/100;
+    document.getElementById('m-cenaBez').value=v||'';
+    document.getElementById('m-kauce').value=s?s*2:'';
+  }
+}
+
+function openModal(id){
+  const e=db.find(x=>x.id===id);
+  if(!e)return;
+  editId=id;
+  initModalParkSelect();
+  document.getElementById('modal-title').textContent=nm(e)+' – garáž '+e.parkoviste;
+  mSetTyp(e.typ||'FO');
+  document.getElementById('m-spolecnost').value=e.spolecnost||'';
+  document.getElementById('m-prijmeni').value=e.prijmeni||'';
+  document.getElementById('m-jmeno').value=e.jmeno||'';
+  document.getElementById('m-typDok').value=e.typDok||'OP';
+  document.getElementById('m-cisloDok').value=e.cisloDok||'';
+  document.getElementById('m-ico').value=e.ico||'';
+  document.getElementById('m-dic').value=e.dic||'';
+  document.getElementById('m-adresa').value=e.adresa||'';
+  document.getElementById('m-email').value=e.email||'';
+  document.getElementById('m-mobil').value=e.mobil||'';
+  document.getElementById('m-park').value=e.parkoviste||'';
+  document.getElementById('m-vs').value=e.vs||'';
+  document.getElementById('m-datOd').value=e.datOd||'';
+  document.getElementById('m-datDo').value=e.datDo||'';
+  document.getElementById('m-cenaBez').value=e.cenaBez||'';
+  document.getElementById('m-cenaS').value=e.cenaS||'';
+  document.getElementById('m-kauce').value=e.cenaS?e.cenaS*2:'';
+  document.getElementById('m-stav').value=e.stav||'ceka';
+  document.getElementById('m-poznamka').value=e.poznamka||'';
+  const cm=document.getElementById('m-chkMail');
+  const ct=document.getElementById('m-chkTel');
+  const cs=document.getElementById('m-chkSmlouva');
+  cm.checked=!!e.chybMail; ct.checked=!!e.chybTel; cs.checked=!!e.chybSmlouva;
+  cm.closest('.chk-item').classList.toggle('checked',!!e.chybMail);
+  ct.closest('.chk-item').classList.toggle('checked',!!e.chybTel);
+  cs.closest('.chk-item').classList.toggle('checked',!!e.chybSmlouva);
+  document.getElementById('modal-bg').classList.add('on');
+  document.body.style.overflow='hidden';
+}
+
+function closeModal(){
+  document.getElementById('modal-bg').classList.remove('on');
+  document.body.style.overflow='';
+  editId=null;
+}
+
+function modalClickBg(ev){if(ev.target===document.getElementById('modal-bg'))closeModal();}
+
+function ulozitModal(){
+  if(!editId)return;
+  const e=db.find(x=>x.id===editId);
+  if(!e)return;
+  const t=document.querySelector('input[name="mtyp"]:checked').value;
+  e.typ=t;
+  e.spolecnost=document.getElementById('m-spolecnost').value.trim();
+  e.prijmeni=document.getElementById('m-prijmeni').value.trim();
+  e.jmeno=document.getElementById('m-jmeno').value.trim();
+  e.typDok=document.getElementById('m-typDok').value;
+  e.cisloDok=document.getElementById('m-cisloDok').value.trim();
+  e.ico=document.getElementById('m-ico').value.trim();
+  e.dic=document.getElementById('m-dic').value.trim();
+  e.adresa=document.getElementById('m-adresa').value.trim();
+  e.email=document.getElementById('m-email').value.trim();
+  e.mobil=document.getElementById('m-mobil').value.trim();
+  e.parkoviste=document.getElementById('m-park').value;
+  e.vs=document.getElementById('m-vs').value.trim();
+  e.datOd=document.getElementById('m-datOd').value;
+  e.datDo=document.getElementById('m-datDo').value;
+  e.cenaBez=parseFloat(document.getElementById('m-cenaBez').value)||0;
+  e.cenaS=parseFloat(document.getElementById('m-cenaS').value)||0;
+  e.stav=document.getElementById('m-stav').value;
+  e.poznamka=document.getElementById('m-poznamka').value.trim();
+  e.chybMail=document.getElementById('m-chkMail').checked;
+  e.chybTel=document.getElementById('m-chkTel').checked;
+  e.chybSmlouva=document.getElementById('m-chkSmlouva').checked;
+  save(); renderEv(); closeModal(); notif('Změny uloženy ✓');
+}
+
+// checkbox appearance in modal
+document.querySelectorAll('#m-alerts .chk-item input').forEach(cb=>{
+  cb.addEventListener('change',()=>cb.closest('.chk-item').classList.toggle('checked',cb.checked));
+});
+
+// ESC closes modal
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+initParkSelect();
+document.getElementById('datOd').valueAsDate=new Date();
+setTyp('FO');
+updStats();
+
+// update checkbox appearance
+document.querySelectorAll('.chk-item input').forEach(cb=>{
+  cb.addEventListener('change',()=>{
+    cb.closest('.chk-item').classList.toggle('checked',cb.checked);
+  });
+});
+</script>
+</body>
+</html>
